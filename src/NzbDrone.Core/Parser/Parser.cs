@@ -210,6 +210,10 @@ namespace NzbDrone.Core.Parser
         private static readonly Regex CleanTorrentSuffixRegex = new Regex(@"\[(?:ettv|rartv|rarbg|cttv)\]$",
                                                                    RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        private static readonly Regex CleanFileStringRegex = new Regex(@"\sFile: ", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex CleanThreadStringRegex = new Regex(@"\sThread:.*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private static readonly Regex ReleaseGroupRegex = new Regex(@"-(?<releasegroup>[a-z0-9]+)\b(?<!WEB-DL|480p|720p|1080p)",
                                                                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -273,6 +277,12 @@ namespace NzbDrone.Core.Parser
                     title = new string(titleWithoutExtension) + title.Substring(titleWithoutExtension.Length);
 
                     Logger.Debug("Reversed name detected. Converted to '{0}'", title);
+                }
+
+                if (CleanFileStringRegex.IsMatch(title) && CleanThreadStringRegex.IsMatch(title))
+                {
+                    title = CleanFileStringRegex.Replace(title, string.Empty);
+                    title = CleanThreadStringRegex.Replace(title, string.Empty);
                 }
 
                 var simpleTitle = SimpleTitleRegex.Replace(title, string.Empty);
